@@ -113,7 +113,7 @@ func getSteamArguments(game string, windowed bool, modPath string, gameRootPath 
 		gameExe = fmt.Sprintf("%s/Homeworld2Classic/Bin/Release/Homeworld2.exe", gameRootPath)
 
 		if windowed {
-			gameOptions = append(gameOptions, "/windowed")
+			gameOptions = append(gameOptions, "-windowed")
 		}
 
 	case hw1rem:
@@ -122,7 +122,7 @@ func getSteamArguments(game string, windowed bool, modPath string, gameRootPath 
 		gameOptions = append(gameOptions, "-campaign HomeworldClassic")
 		gameOptions = append(gameOptions, "-moviepath DataHW1Campaign")
 		if windowed {
-			gameOptions = append(gameOptions, "/windowed")
+			gameOptions = append(gameOptions, "-windowed")
 		}
 
 	case hw2rem:
@@ -131,13 +131,13 @@ func getSteamArguments(game string, windowed bool, modPath string, gameRootPath 
 		gameOptions = append(gameOptions, "-campaign Ascension")
 		gameOptions = append(gameOptions, "-moviepath DataHW2Campaign")
 		if windowed {
-			gameOptions = append(gameOptions, "/windowed")
+			gameOptions = append(gameOptions, "-windowed")
 		}
 
 	case hwmp:
 		gameExe = fmt.Sprintf("%s/HomeworldRM/bin/Release/HomeworldRM.exe", gameRootPath)
 		if windowed {
-			gameOptions = append(gameOptions, "/windowed")
+			gameOptions = append(gameOptions, "-windowed")
 		}
 
 	default:
