@@ -54,6 +54,7 @@ func (s *steam) run(game string) error {
 	args = append([]string{binary, "steam.exe"}, args...)
 	env := getSteamEnvironment(s.clientPath, s.protonPath)
 
+	log.Debugf("Running %s with args %s", binary, args)
 	return syscall.Exec(binary, args, env)
 }
 
