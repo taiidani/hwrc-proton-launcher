@@ -117,7 +117,7 @@ func getSteamArguments(game string, windowed bool, modPath string, gameRootPath 
 		}
 
 	case hw1rem:
-		gameExe = fmt.Sprintf("%s/HomeworldRM/bin/Release/HomeworldRM.exe", gameRootPath)
+		gameExe = fmt.Sprintf("%s/HomeworldRM.exe", getHomeworldRMPath())
 		gameOptions = append(gameOptions, "-dlccampaign HW1Campaign.big")
 		gameOptions = append(gameOptions, "-campaign HomeworldClassic")
 		gameOptions = append(gameOptions, "-moviepath DataHW1Campaign")
@@ -126,7 +126,7 @@ func getSteamArguments(game string, windowed bool, modPath string, gameRootPath 
 		}
 
 	case hw2rem:
-		gameExe = fmt.Sprintf("%s/HomeworldRM/bin/Release/HomeworldRM.exe", gameRootPath)
+		gameExe = fmt.Sprintf("%s/HomeworldRM.exe", getHomeworldRMPath())
 		gameOptions = append(gameOptions, "-dlccampaign HW2Campaign.big")
 		gameOptions = append(gameOptions, "-campaign Ascension")
 		gameOptions = append(gameOptions, "-moviepath DataHW2Campaign")
@@ -135,7 +135,7 @@ func getSteamArguments(game string, windowed bool, modPath string, gameRootPath 
 		}
 
 	case hwmp:
-		gameExe = fmt.Sprintf("%s/HomeworldRM/bin/Release/HomeworldRM.exe", gameRootPath)
+		gameExe = fmt.Sprintf("%s/HomeworldRM.exe", getHomeworldRMPath())
 		if windowed {
 			gameOptions = append(gameOptions, "-windowed")
 		}
@@ -206,4 +206,21 @@ func getSteamEnvironment(steamPath, protonPath string) []string {
 		"WINEDLLOVERRIDES=steam.exe=b;mfplay=n;d3d11=n;d3d10=n;d3d10core=n;d3d10_1=n;dxgi=n",
 		fmt.Sprintf("STEAM_COMPAT_CLIENT_INSTALL_PATH=%s", steamPath),
 	}...)
+}
+
+func getHomeworldRMPath() string {
+	installPath := ""
+	for _, path := range defaultInstallPaths {
+		resolvedPath := os.ExpandEnv(path)
+		log.Debug("Checking " + resolvedPath + " for HomeworldRM")
+		if _, err := os.Stat(resolvedPath); err == nil {
+			installPath = resolvedPath
+			break
+		}
+	}
+	if installPath == "" {
+		help()
+		os.Exit(1)
+	}
+	return installPath
 }
