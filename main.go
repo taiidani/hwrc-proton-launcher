@@ -26,6 +26,12 @@ var (
 		"$HOME/.steam/steam",
 	}
 
+	// fixes not found installation path on Manjaro (HomeworldRM is affected only)
+	defaultInstallPaths = []string{
+		"$HOME/.local/share/Steam/steamapps/common/Homeworld/HomeworldRM/bin/Release",
+		"$HOME/.local/share/Steam/steamapps/common/Homeworld/HomeworldRM/Bin/Release",
+	}
+
 	flagWindowed bool
 	flagModPath  string
 	flagHelp     bool
