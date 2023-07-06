@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	ps "github.com/mitchellh/go-ps"
-	log "github.com/sirupsen/logrus"
+	"golang.org/x/exp/slog"
 )
 
 type steam struct {
@@ -47,14 +47,14 @@ func (s *steam) run(game string) error {
 
 	// Change directory to the location of the executable
 	if err := os.Chdir(gamePath); err != nil {
-		log.Fatalf("Unable to change directory to game path: %s", err)
+		return fmt.Errorf("unable to change directory to game path: %w", err)
 	}
 
 	binary := fmt.Sprintf("%s/dist/bin/wine", s.protonPath)
 	args = append([]string{binary, "steam.exe"}, args...)
 	env := getSteamEnvironment(s.clientPath, s.protonPath)
 
-	log.Debugf("Running %s with args %s", binary, args)
+	slog.Debug("Running", "binary", binary, "args", args)
 	return syscall.Exec(binary, args, env)
 }
 
@@ -66,7 +66,7 @@ func findSteam() (string, error) {
 	steamPath := ""
 	for _, path := range defaultSteamPaths {
 		resolvedPath := os.ExpandEnv(path)
-		log.Debug("Checking " + resolvedPath + " for Steam")
+		slog.Debug("Checking " + resolvedPath + " for Steam")
 		if _, err := os.Stat(resolvedPath); err == nil {
 			steamPath = resolvedPath
 			break
@@ -158,10 +158,10 @@ func getSteamArguments(game string, windowed bool, modPath string, gameRootPath 
 //
 // These environment variables are set by Steam when launching the game from the Steam client using Steam Play. To retrieve
 // these variables inspect the run script that can be dumped from Steam in this way:
-//   1. Set the game launch options in the Steam client to
-//      "PROTON_DUMP_DEBUG_COMMANDS=1 %command%";
-//   2. Launch the game (even if it does not work);
-//   3. Find the script "/tmp/proton_<username>/run".
+//  1. Set the game launch options in the Steam client to
+//     "PROTON_DUMP_DEBUG_COMMANDS=1 %command%";
+//  2. Launch the game (even if it does not work);
+//  3. Find the script "/tmp/proton_<username>/run".
 func getSteamEnvironment(steamPath, protonPath string) []string {
 	steamCustomPaths := strings.Join([]string{
 		fmt.Sprintf("%s/dist/bin", protonPath),
@@ -212,7 +212,7 @@ func getHomeworldRMPath() string {
 	installPath := ""
 	for _, path := range defaultInstallPaths {
 		resolvedPath := os.ExpandEnv(path)
-		log.Debug("Checking " + resolvedPath + " for HomeworldRM")
+		slog.Debug("Checking " + resolvedPath + " for HomeworldRM")
 		if _, err := os.Stat(resolvedPath); err == nil {
 			installPath = resolvedPath
 			break

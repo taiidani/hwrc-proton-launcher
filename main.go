@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"golang.org/x/exp/slog"
 )
 
 const (
@@ -46,10 +46,11 @@ func main() {
 	flag.Parse()
 
 	if flagVerbose {
-		log.SetLevel(log.DebugLevel)
+		log := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug})
+		slog.SetDefault(slog.New(log))
 	}
 
-	var fn func(*steam)
+	var fn func(*steam) error
 	if flagHelp {
 		help()
 		os.Exit(1)
@@ -61,9 +62,14 @@ func main() {
 
 	s, err := newSteam()
 	if err != nil {
-		log.Fatal(err)
+		slog.Error(err.Error())
+		os.Exit(2)
 	}
-	fn(s)
+
+	if err := fn(s); err != nil {
+		slog.Error(err.Error())
+		os.Exit(3)
+	}
 }
 
 // help displays the help text for the application
@@ -98,12 +104,10 @@ For example, to load the Homeworld Remastered 2.3 Players Patch using a relative
 }
 
 // cli runs the game with the expectation that configuration is coming from the CLI arguments
-func cli(s *steam) {
+func cli(s *steam) error {
 	// Figure out the game arguments
 	game := flag.Arg(0)
 
 	// Run the game!
-	if err := s.run(game); err != nil {
-		log.Fatal(err.Error())
-	}
+	return s.run(game)
 }

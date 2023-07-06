@@ -1,78 +1,77 @@
 package main
 
 import (
-	"fyne.io/fyne/app"
-	"fyne.io/fyne/widget"
-	log "github.com/sirupsen/logrus"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/widget"
+	"golang.org/x/exp/slog"
 )
 
 // ui runs the game with the expectation that configuration is provided by the GUI
-func ui(s *steam) {
+func ui(s *steam) error {
 	app := app.New()
 
-	// Expose the windowed flag to the UI
-	windowed := widget.NewCheck("Windowed", func(checked bool) {
-		flagWindowed = checked
-	})
-	windowed.SetChecked(flagWindowed)
-
 	// Expose the modPath flag to the UI
-	modPath := widget.NewEntry()
-	modPath.SetText(flagModPath)
+	modPath := widget.NewEntryWithData(binding.BindString(&flagModPath))
 	modPath.SetPlaceHolder("Path to Mod")
 
 	// Build it!
 	w := app.NewWindow("HWRM Launcher")
-	w.SetContent(widget.NewVBox(
+
+	content := container.NewVBox(
 		widget.NewLabel("Homeworld Remastered Launcher"),
-		widget.NewGroup("Classic",
-			widget.NewHBox(
+		widget.NewCard("Classic", "",
+			container.NewHBox(
 				widget.NewButton("Homeworld 1", func() {
 					flagModPath = modPath.Text
 					if err := s.run(hw1cla); err != nil {
-						log.Fatal(err.Error())
+						slog.Error(err.Error())
 					}
 				}),
 				widget.NewButton("Homeworld 2", func() {
 					flagModPath = modPath.Text
 					if err := s.run(hw2cla); err != nil {
-						log.Fatal(err.Error())
+						slog.Error(err.Error())
 					}
 				}),
 			),
 		),
-		widget.NewGroup("Remastered",
-			widget.NewHBox(
+		widget.NewCard("Remastered", "",
+			container.NewHBox(
 				widget.NewButton("Homeworld 1", func() {
 					flagModPath = modPath.Text
 					if err := s.run(hw1rem); err != nil {
-						log.Fatal(err.Error())
+						slog.Error(err.Error())
 					}
 				}),
 				widget.NewButton("Homeworld 2", func() {
 					flagModPath = modPath.Text
 					if err := s.run(hw2rem); err != nil {
-						log.Fatal(err.Error())
+						slog.Error(err.Error())
 					}
 				}),
 			),
 		),
-		widget.NewGroup("Multiplayer",
+		widget.NewCard("Multiplayer", "",
 			widget.NewButton("Homeworld Remastered", func() {
 				flagModPath = modPath.Text
 				if err := s.run(hwmp); err != nil {
-					log.Fatal(err.Error())
+					slog.Error(err.Error())
 				}
 			}),
 		),
-		widget.NewGroup("Options",
-			windowed,
-			widget.NewHBox(
-				widget.NewLabel("Mod Path"),
-				modPath,
+		widget.NewCard("Options", "",
+			container.NewVBox(
+				widget.NewCheckWithData("Windowed", binding.BindBool(&flagWindowed)),
+				widget.NewForm(
+					widget.NewFormItem("Mod Path", modPath),
+				),
 			),
 		),
-	))
+	)
 
+	w.SetContent(content)
 	w.ShowAndRun()
+	return nil
 }
